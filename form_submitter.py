@@ -41,7 +41,7 @@ def fill_form(thread_id, submissions_per_thread):
         
         try:
             # Go to the Google Form link
-            driver.get("https://docs.google.com/forms/d/e/1FAIpQLSebuO_V3MIkXQQdcq-H39j2Kzsjp7DxxXGLF2wOXjKfpZH6BA/viewform")
+            driver.get("URL")
             human_pause(2, 3)  # Let the form load
 
             # Fill the first page (randomly selecting radio options)
