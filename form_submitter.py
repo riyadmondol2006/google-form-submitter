@@ -29,7 +29,7 @@ def fill_radio_questions(driver):
             human_pause()  # Pause slightly after each click
 
 
-def fill_form(thread_id, submissions_per_thread):
+def fill_form(thread_id, submissions_per_thread, form_url):
     """
     Each thread runs this function to submit the form the specified number of times.
     """
@@ -40,19 +40,24 @@ def fill_form(thread_id, submissions_per_thread):
         driver = webdriver.Chrome(service=Service(ChromeDriverManager().install()))
         
         try:
-            # Go to the Google Form link
-            driver.get("URL")
+            # Go to the user-provided Google Form link
+            driver.get(form_url)
             human_pause(2, 3)  # Let the form load
 
             # Fill the first page (randomly selecting radio options)
             fill_radio_questions(driver)
 
-            # Click the Next button
-            next_button = driver.find_element(By.CSS_SELECTOR, "[jsname='OCpkoe']")
-            driver.execute_script("arguments[0].click();", next_button)
-            human_pause(2, 4)  # Wait for the next page
+            # Click the Next button (if the form has multiple pages)
+            try:
+                next_button = driver.find_element(By.CSS_SELECTOR, "[jsname='OCpkoe']")
+                driver.execute_script("arguments[0].click();", next_button)
+                human_pause(2, 4)  # Wait for the next page
+            except:
+                # If there's no next button, it might be a single-page form.
+                # We'll continue to try submitting anyway.
+                pass
 
-            # Fill the second page
+            # Fill the second page (if any)
             fill_radio_questions(driver)
 
             # Submit the form
@@ -79,7 +84,10 @@ def main():
     Main entry point to run multiple threads simultaneously and gather user input.
     """
     print("\n===== Made By Riyad M. =====\n")
-    print("This script will automate submissions to the specified Google Form.\n")
+    print("This script will automate submissions to a specified Google Form.\n")
+    
+    # Ask the user for the form URL
+    form_url = input("Enter the Google Form URL: ").strip()
     
     # Get user input for number of parallel threads/windows
     num_threads = int(input("How many parallel windows? "))
@@ -90,7 +98,10 @@ def main():
     # Create and start the threads
     threads = []
     for i in range(num_threads):
-        t = threading.Thread(target=fill_form, args=(i+1, submissions_per_thread))
+        t = threading.Thread(
+            target=fill_form, 
+            args=(i+1, submissions_per_thread, form_url)
+        )
         threads.append(t)
         t.start()
         human_pause(1, 2)  # Stagger the thread starts so they don't all open at once
